@@ -68,8 +68,8 @@ router.post("/postAddDorm", (req, res) => {
 
 //修改  ,d_money=${editDormPay} editDormPay, editDormPeople,editDormNum
 router.post("/postEditDorm", (req, res) => {
-  let {editDormName,  id } = req.body;
-  let sql = `UPDATE d_dorm SET d_name='${editDormName}'  WHERE d_id=${id}`;
+  let {editDormName,editDormPay,dormState,  id } = req.body;
+  let sql = `UPDATE d_dorm SET d_name='${editDormName}',d_money=${editDormPay},d_state=${dormState} WHERE d_id=${id}`;
   console.log(sql);
   db.query(sql, (err, data) => {
     if (err) {

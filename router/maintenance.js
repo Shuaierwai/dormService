@@ -81,6 +81,18 @@ router.get("/getMaintenanceMini", (req, res) => {
       }
     });
   });
+  //查询未处理的维修
+  router.get("/getUndisposedMain", (req, res) => {
+
+    let sql = `SELECT COUNT(*) 'total' FROM m_maintenance WHERE m_state=0`;
+    db.query(sql, (err, data) => {
+      if (err) {
+        res.send({ code: 500, msg: err });
+      } else {
+        res.send({ code: 200, msg: "未处理查询成功" ,data:data});
+      }
+    });
+  });
 
   //删除
   router.get("/getDelMain", (req, res) => {

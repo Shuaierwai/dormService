@@ -8,15 +8,15 @@ const AlipayFormData = require('alipay-sdk/lib/form').default;
 //支付接口
 router.post('/pay', function (req, res) {
     console.log('req', req.body.orderId);
-    let {payDate,id,dormId}=req.body
+    let {payDate,id,dormId,student}=req.body
     let orderId = req.body.orderId
     let price = req.body.price
-    console.log()
-
-    let sql = ` INSERT INTO p_pay VALUES(null,'${payDate}',${price},${id})
+   
+    let sql = ` INSERT INTO p_pay VALUES(null,'${payDate}',${price},'${student}',${id})
   ; `;
   //充值添加到宿舍表
   let sql2=`UPDATE d_dorm SET d_money=d_money+${price} WHERE d_id=${dormId}`
+  console.log(sql,sql2)
   db.query(sql, (err, data) => {
     if (err) {
       res.send({ code: 500, msg: err });
@@ -80,6 +80,44 @@ router.post('/pay', function (req, res) {
     //     )
     // })
 })
+
+//后台展示缴费记录信息
+router.get('/getPay',(req,res)=>{
+  let { count, page,search}=req.query;
+  let sql=`SELECT * FROM p_pay WHERE p_student  like '%${search}%' LIMIT ${(page-1)*count},${count}`;
+  let sql2=`SELECT COUNT(*) 'total' FROM p_pay WHERE  p_student like '%${search}%'`;
+  db.query(sql, (err, data) => {
+    if (err) {
+      res.send({ code: 500, msg: err });
+    } else {
+      db.query(sql2, (err2, data2) => {
+        if (err2) {
+          res.send({ code: 500, msg: err2 });
+        }else{
+          if(data.length>0){
+              res.send({code:200,msg:'获取缴费信息成功',data:data,total:data2[0].total})
+          }else{
+              res.send({code:404,msg:'查无此数据'})
+          } 
+        }
+      });
+    }
+  });
+})
+
+//删除缴费信息
+router.get("/getDelPay", (req, res) => {
+  let { id } = req.query;
+  let sql = ` DELETE FROM p_pay WHERE p_id=${id}
+    `;
+  db.query(sql, (err, data) => {
+    if (err) {
+      res.send({ code: 500, msg: err });
+    } else {
+      res.send({ code: 200, msg: "删除成功" });
+    }
+  });
+});
 
 //查询小程序支付记录
 router.get("/getStudentPayMini", (req, res) => {
